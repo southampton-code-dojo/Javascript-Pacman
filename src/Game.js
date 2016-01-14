@@ -462,13 +462,9 @@ function yOnGridCenter (x) {
 	return ((x - GRID_HEIGHT/2) % GRID_HEIGHT) === 0;
 }
 
-//see if sprite can move one more step at the given (x,y) facing the given direction
-function canMove (x,y,dir) {
-	if(!onGridCenter(x,y)){
-		return true;
-	}
+function canMove(x, y, dir) {
 	var canMove = false;
-	var currGrid = maze[getRowIndex(y)][getColIndex(x)];
+	var currGrid = maze[y][x];
 	var gridType = currGrid.gridType;
 	switch(dir){
 		case UP:
@@ -508,6 +504,15 @@ function canMove (x,y,dir) {
 
 	}
 	return canMove;
+}
+
+//see if sprite can move one more step at the given (x,y) facing the given direction
+function canMoveX (x,y,dir) {
+	if(!onGridCenter(x,y)){
+		return true;
+	}
+
+	return canMove(getRowIndex(x), getColIndex(y), dir);
 }
 /*=================END Util Methods================*/
 

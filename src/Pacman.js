@@ -86,7 +86,7 @@ Pacman.prototype.getCol = function() {
 
 //return if pacman can move with current direction & tile
 Pacman.prototype.canMove = function(dir) {
-	return canMove(this.x, this.y, dir);
+	return canMoveX(this.x, this.y, dir);
 };
 
 //try to turn(if necessary) and move the pacman.
@@ -129,7 +129,7 @@ Pacman.prototype.move = function() {
 Pacman.prototype.moveOneStep = function() {
 	var newX =0;
 	var newY =0;
-	if(!canMove(this.x, this.y, this.dir)){
+	if(!canMoveX(this.x, this.y, this.dir)){
 		return;
 	}
 	switch(this.dir){

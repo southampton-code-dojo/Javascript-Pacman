@@ -216,7 +216,7 @@ Ghost.prototype.moveOneStep = function() {
 	// body...
 	var newX =0;
 	var newY =0;
-	if(!canMove(this.x, this.y, this.dir)){
+	if(!canMoveX(this.x, this.y, this.dir)){
 		return;
 	}
 	switch(this.dir){
@@ -317,7 +317,7 @@ Ghost.prototype.randomMove = function() {
 	var nextDir =  parseInt(Math.random()*4)+1;
 	while(true){
 		if( nextDir != oppositeDir(this.dir) 
-			&& canMove(this.x, this.y, nextDir)){
+			&& canMoveX(this.x, this.y, nextDir)){
 			break;
 		}
 		nextDir =  parseInt(Math.random()*4)+1;
