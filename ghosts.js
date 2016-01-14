@@ -58,13 +58,10 @@ function cyanMove(positions) {
     // This will move down, except when weak - where it will move left,
     // or blinking, where it will move right
     if (positions.cyan.isBlinking) {
-        console.log("RIGHT");
         return RIGHT;
     } else if (positions.cyan.isWeak) {
-        console.log("LEFT");
         return LEFT;
     }
-    console.log("DOWN");
     return DOWN;
 }
 
