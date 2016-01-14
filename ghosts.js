@@ -69,7 +69,7 @@ function orangeMove(positions) {
     // This will move in whichever direction is valid
     // in order it will check RIGHT (4) LEFT (3) DOWN (2) UP (1)
     for (var i = 4; i > 0; i--) {
-        if (canMove(positions.red.x, positions.red.y, i)) {
+        if (canMove(positions.orange.x, positions.orange.y, i)) {
             return i;
         }
     }
