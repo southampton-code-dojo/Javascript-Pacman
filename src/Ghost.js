@@ -264,208 +264,52 @@ Ghost.prototype.turnBack = function() {
 
 //try to turn(if necessary) and move the ghost
 Ghost.prototype.move = function() {
-
 	this.isMoving = !this.isMoving;//so the ghost looks like it's moving
 	if(this.isWeak){
-		//if weak, reduce speed and make an immediate turn.
-		//Ghost starts making random moves until turning back to normal
 		this.speed = speed/2;
-		if(weakCounter === WEAK_DURATION){
-			this.dir = oppositeDir(this.dir);
-		}
-		if(onGridCenter(this.x, this.y) === false){
-			this.moveOneStep();
-		}
-		else{
-			var currGrid = maze[getRowIndex(this.y)][getColIndex(this.x)];
-			if(currGrid.gridType === LEFT_TOP_RIGHT){
-				this.dir = DOWN;
-				this.moveOneStep();
-			}
-			else if(currGrid.gridType === TOP_RIGHT_BOTTOM){
-				this.dir = LEFT;
-				this.moveOneStep();
-			}
-			else if(currGrid.gridType === RIGHT_BOTTOM_LEFT){
-				this.dir = UP;
-				this.moveOneStep();
-			}
-			else if(currGrid.gridType === BOTTOM_LEFT_TOP){
-				this.dir = RIGHT;
-				this.moveOneStep();
-			}
-			else{
-				this.randomMove();
-			}
-
-		}
-
 		this.stepCounter++;
+	} else if(this.stepCounter != 0 && this.stepCounter % 2 !=0){
+		this.speed = speed/2;
+		this.stepCounter = 0;
+	} else {
+		this.speed = speed;
 	}
-	else{
-		//normal ghost
-		if(this.stepCounter != 0 && this.stepCounter % 2 !=0){
-			this.speed = speed/2;
-			this.stepCounter = 0;
+
+	if(onGridCenter(this.x, this.y) === false){
+		this.moveOneStep();
+	} else{
+		// on grid center
+		var positions = {
+			"pacman": {dir: mrPacman.dir, x: mrPacman.getCol(), y: mrPacman.getRow()},
+			"red": {dir: blinky.dir, x: blinky.getCol(), y: blinky.getRow(), isDead: blinky.isDead, isWeak: blinky.isWeak, isBlinking: blinky.isBlinking},
+			"cyan": {dir: inky.dir, x: inky.getCol(), y: inky.getRow(), isDead: inky.isDead, isWeak: inky.isWeak, isBlinking: inky.isBlinking},
+			"orange": {dir: clyde.dir, x: clyde.getCol(), y: clyde.getRow(), isDead: clyde.isDead, isWeak: clyde.isWeak, isBlinking: clyde.isBlinking},
+			"pink": {dir: pinky.dir, x: pinky.getCol(), y: pinky.getRow(), isDead: pinky.isDead, isWeak: pinky.isWeak, isBlinking: pinky.isBlinking}
 		}
-		else{
-			this.speed = speed;
-		}
-		if(onGridCenter(this.x, this.y) === false){
-			this.moveOneStep();
-		}
-		else{
-			// on grid center
-			//first check if dead end
-			var currGrid = maze[getRowIndex(this.y)][getColIndex(this.x)];
-			if(currGrid.gridType === LEFT_TOP_RIGHT){
-				this.dir = DOWN;
-				this.moveOneStep();
-			}
-			else if(currGrid.gridType === TOP_RIGHT_BOTTOM){
-				this.dir = LEFT;
-				this.moveOneStep();
-			}
-			else if(currGrid.gridType === RIGHT_BOTTOM_LEFT){
-				this.dir = UP;
-				this.moveOneStep();
-			}
-			else if(currGrid.gridType === BOTTOM_LEFT_TOP){
-				this.dir = RIGHT;
-				this.moveOneStep();
-			}
-			else{
-				switch(this.color){
-					case RED:
-					//blinky
-					this.blinkyMove();
-					break;
 
-					case CYAN:
-					case ORANGE:
-					//inky
-					this.inkyMove();
-					break;
-
-					case PINK:
-					//pinky
-					this.pinkyMove();
-					break;
-				}
-			}
-		}
-	}
-
-};
-
-//blinky always chooses the tile that will make it closest to pacman
-Ghost.prototype.blinkyMove = function() {
-	this.moveToPacman(true);
-};
-
-//pinky chooses the tile that is 4 steps ahead of pacman
-Ghost.prototype.pinkyMove = function() {
-	this.moveToPacman(false);
-};
-
-//inky is unpredictable, makes random move
-Ghost.prototype.inkyMove = function() {
-	this.randomMove();
-};
-
-Ghost.prototype.moveToPacman = function(targetPacman) {
-	var veryLargeDistance = CANVAS_WIDTH*CANVAS_HEIGHT;
-	var leftDist, rightDist, upDist, downDist;
-	var currDir = this.dir;
-	var minDist = veryLargeDistance;
-	//get distance if moved to left
-	if(currDir === RIGHT || !canMove(this.x, this.y, LEFT)){
-		leftDist = veryLargeDistance;
-	}
-	else{
-		leftDist = this.getTestDistance(LEFT,targetPacman);
-	}
-
-	//get distance to right
-	if(currDir === LEFT || !canMove(this.x, this.y, RIGHT)){
-		rightDist = veryLargeDistance;
-	}
-	else{
-		rightDist = this.getTestDistance(RIGHT,targetPacman);
-	}
-
-	//get distance - up
-	if(currDir === DOWN || !canMove(this.x, this.y, UP)){
-		upDist = veryLargeDistance;
-	}
-	else{
-		upDist = this.getTestDistance(UP,targetPacman);
-	}
-
-	//get distance - down
-	if(currDir === UP || !canMove(this.x, this.y, DOWN)){
-		downDist = veryLargeDistance;
-	}
-	else{
-		downDist = this.getTestDistance(DOWN, targetPacman);
-	}
-	this.dir = currDir;
-	minDist = Math.min(Math.min(leftDist, rightDist), Math.min(upDist, downDist));
-	switch(minDist){
-		case leftDist:
-		this.dir = LEFT;
-		break;
-
-		case rightDist:
-		this.dir = RIGHT;
-		break;
-
-		case upDist:
-		this.dir = UP;
-		break;
-
-		case downDist:
-		this.dir = DOWN;
-		break;
-	}
-	this.moveOneStep();
-};
-
-//get the distance from this ghost to pacman as if it moved one step in the given direction
-Ghost.prototype.getTestDistance = function(dir, targetPacman) {
-	var toReturn = 0;
-	this.dir = dir;
-	this.moveOneStep();
-	if(targetPacman){
-		toReturn = Math.sqrt(Math.pow( (this.x - mrPacman.x)  ,2)+Math.pow( this.y -mrPacman.y,2));
-	}
-	else{
-		switch(mrPacman.dir){
-			case LEFT:
-			toReturn = Math.sqrt(Math.pow( (this.x - (mrPacman.x - 4*GRID_WIDTH))  ,2)+Math.pow( this.y -mrPacman.y,2));
+		switch(this.color){
+			case RED:
+			//blinky
+			var new_dir = redMove(positions);
 			break;
 
-			case RIGHT:
-			toReturn = Math.sqrt(Math.pow( (this.x - (mrPacman.x + 4*GRID_WIDTH))  ,2)+Math.pow( this.y -mrPacman.y,2));
+			case CYAN:
+			var new_dir = cyanMove(positions);
 			break;
 
-			case UP:
-			toReturn = Math.sqrt(Math.pow( (this.x - mrPacman.x)  ,2)+Math.pow( this.y - (mrPacman.y - 4*GRID_HEIGHT),2));
+			case ORANGE:
+			var new_dir = orangeMove(positions)
 			break;
 
-			case DOWN:
-			toReturn = Math.sqrt(Math.pow( (this.x - mrPacman.x)  ,2)+Math.pow( this.y - (mrPacman.y  + 4*GRID_HEIGHT),2));
+			case PINK:
+			var new_dir = pinkMove(positions)
 			break;
-
-			default:
-			toReturn = Math.sqrt(Math.pow( (this.x - mrPacman.x)  ,2)+Math.pow( this.y -mrPacman.y,2));
-			break;
-
 		}
+		if ([UP, DOWN, LEFT, RIGHT].indexOf(new_dir) > -1) {
+			this.dir = new_dir
+		}
+		this.moveOneStep();
 	}
-	this.turnBack();
-	this.moveOneStep();
-	return toReturn;
 };
 
 //make random move at intersection

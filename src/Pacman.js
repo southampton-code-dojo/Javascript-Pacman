@@ -173,8 +173,3 @@ Pacman.prototype.moveOneStep = function() {
 		break;
 	}
 };
-
-
-
-
-
